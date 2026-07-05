@@ -8,7 +8,8 @@ export async function GET() {
     await db.execute(sql`select 1`);
     return Response.json({ ok: true });
   } catch (error) {
-    console.error("Health check error:", error);
-    return Response.json({ ok: false, error: String(error) }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    const cause = error instanceof Error && error.cause ? JSON.stringify(error.cause) : undefined;
+    return Response.json({ ok: false, message, cause }, { status: 500 });
   }
 }

@@ -10,8 +10,9 @@ export async function GET(request: Request) {
     const data = await getTopicProgress(subject);
     return Response.json({ data });
   } catch (error) {
-    console.error("GET /api/topics/progress error:", error);
-    return Response.json({ error: String(error) }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    const cause = error instanceof Error && error.cause ? JSON.stringify(error.cause) : undefined;
+    return Response.json({ error: "Failed to load progress", message, cause }, { status: 500 });
   }
 }
 
