@@ -8,13 +8,26 @@ type SolutionPanelProps = {
   solution: SolutionRecord | null;
 };
 
+function containsFormula(detail: string) {
+  return /\$\$.+?\$\$|\$.+?\$/.test(detail);
+}
+
+function advancePastFormulas(from: number, steps: SolutionRecord["steps"]) {
+  let i = from;
+  while (i < steps.length && containsFormula(steps[i].detail)) i++;
+  return i;
+}
+
 export function SolutionPanel({ solution }: SolutionPanelProps) {
   const [revealMode, setRevealMode] = useState(false);
   const [revealedUpTo, setRevealedUpTo] = useState(1);
 
   const revealNext = useCallback(() => {
     if (!solution) return;
-    setRevealedUpTo((prev) => Math.min(prev + 1, solution.steps.length));
+    setRevealedUpTo((prev) => {
+      const next = Math.min(prev + 1, solution.steps.length);
+      return advancePastFormulas(next, solution.steps);
+    });
   }, [solution]);
 
   const revealAll = useCallback(() => {
@@ -89,7 +102,7 @@ export function SolutionPanel({ solution }: SolutionPanelProps) {
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-100 text-xs font-semibold text-stone-600 dark:bg-stone-800 dark:text-stone-400">
                 {step.order}
               </div>
-              <div className="min-w-0 flex-1 overflow-x-auto">
+              <div className="min-w-0 flex-1 break-words">
                 {step.heading && (
                   <h3 className="text-sm font-semibold text-stone-950 dark:text-stone-100 sm:text-base">{step.heading}</h3>
                 )}
@@ -134,8 +147,10 @@ export function SolutionPanel({ solution }: SolutionPanelProps) {
             onClick={() => {
               const next = !revealMode;
               setRevealMode(next);
-              if (next && solution) setRevealedUpTo(1);
-              else if (solution) setRevealedUpTo(solution.steps.length);
+              if (next && solution) {
+                const start = advancePastFormulas(0, solution.steps);
+                setRevealedUpTo(start < solution.steps.length ? start : 1);
+              } else if (solution) setRevealedUpTo(solution.steps.length);
             }}
             className="flex min-h-[44px] items-center rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition-all hover:bg-stone-50 active:scale-[0.97] dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:bg-stone-700"
           >

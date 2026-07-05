@@ -145,6 +145,18 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
       setSubmitError("Enter a problem or upload an image.");
       return;
     }
+
+    const normalized = trimmed.replace(/\s+/g, " ");
+    const existing = solutions.find(
+      (s) => s.problem.replace(/\s+/g, " ") === normalized,
+    );
+    if (existing) {
+      setActiveSolution(existing);
+      setProblem("");
+      setImage(null);
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitError(null);
     try {
@@ -228,7 +240,7 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
     : null;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4 sm:space-y-5">
+    <div className="mx-auto max-w-5xl space-y-4 sm:space-y-5 lg:px-6">
       {/* Breadcrumb */}
       {activeSolution && breadcrumbSubject && (
         <div className="flex items-center gap-1.5 text-[11px] text-stone-400 dark:text-stone-500">
