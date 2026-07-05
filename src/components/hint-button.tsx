@@ -41,12 +41,12 @@ export function HintButton({ solutionId, totalSteps }: HintButtonProps) {
         type="button"
         onClick={getNextHint}
         disabled={loading}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-all hover:border-stone-950 hover:text-stone-950 disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-all hover:border-stone-950 hover:text-stone-950 disabled:opacity-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-100 dark:hover:text-stone-100"
       >
         {loading ? "..." : hint ? "Next hint" : "Hint"}
       </button>
       {hint && (
-        <div className="rounded-lg border border-dashed border-stone-300 bg-stone-50 px-3 py-2 text-sm leading-6 text-stone-700">
+        <div className="rounded-lg border border-dashed border-stone-300 bg-stone-50 px-3 py-2 text-sm leading-6 text-stone-700 dark:border-stone-600 dark:bg-stone-800/50 dark:text-stone-300">
           {hint}
         </div>
       )}

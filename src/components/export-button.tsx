@@ -7,7 +7,14 @@ type ExportButtonProps = {
 };
 
 export function ExportButton({ solution }: ExportButtonProps) {
-  function handleExport() {
+  function getSolutionUrl() {
+    if (typeof window === "undefined") return "";
+    const url = new URL(window.location.href);
+    url.searchParams.set("solution", String(solution.id));
+    return url.toString();
+  }
+
+  function handleExportHtml() {
     const content = `
       <html>
         <head><meta charset="utf-8"><title>${solution.title}</title>
@@ -38,37 +45,46 @@ export function ExportButton({ solution }: ExportButtonProps) {
   }
 
   function handleShare() {
-    const shareData = {
-      title: solution.title,
-      text: `${solution.title}\n\n${solution.steps.map((s) => `${s.order}. ${s.detail}`).join("\n")}`,
-    };
+    const url = getSolutionUrl();
     if (navigator.share) {
-      navigator.share(shareData).catch(() => {});
+      navigator.share({ title: solution.title, url }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(shareData.text).then(() => {
-        alert("Solution copied to clipboard");
+      navigator.clipboard.writeText(url).then(() => {
+        alert("Link copied to clipboard");
       }).catch(() => {});
     }
+  }
+
+  function handleCopyLink() {
+    const url = getSolutionUrl();
+    navigator.clipboard.writeText(url).then(() => {
+      alert("Link copied to clipboard");
+    }).catch(() => {});
   }
 
   return (
     <div className="flex gap-1">
       <button
         type="button"
-        onClick={handleExport}
-        className="rounded-lg border border-stone-300 px-2.5 py-1.5 text-[11px] font-medium text-stone-600 transition-all hover:border-stone-950 hover:text-stone-950"
+        onClick={handleShare}
+        className="rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-[11px] font-medium text-stone-600 transition-all hover:border-stone-950 hover:text-stone-950 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-100 dark:hover:text-stone-100"
       >
-        Export
+        Share link
       </button>
-      {typeof navigator !== "undefined" && "share" in navigator && (
-        <button
-          type="button"
-          onClick={handleShare}
-          className="rounded-lg border border-stone-300 px-2.5 py-1.5 text-[11px] font-medium text-stone-600 transition-all hover:border-stone-950 hover:text-stone-950"
-        >
-          Share
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={handleExportHtml}
+        className="rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-[11px] font-medium text-stone-600 transition-all hover:border-stone-950 hover:text-stone-950 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-100 dark:hover:text-stone-100"
+      >
+        Export HTML
+      </button>
+      <button
+        type="button"
+        onClick={handleCopyLink}
+        className="rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-[11px] font-medium text-stone-600 transition-all hover:border-stone-950 hover:text-stone-950 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-100 dark:hover:text-stone-100"
+      >
+        Copy link
+      </button>
     </div>
   );
 }

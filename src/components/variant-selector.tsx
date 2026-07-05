@@ -13,16 +13,20 @@ export function VariantSelector({ solutionId, originalSteps }: VariantSelectorPr
   const [variants, setVariants] = useState<SolutionStep[][]>([]);
   const [loading, setLoading] = useState(false);
   const [activeVariant, setActiveVariant] = useState<number | null>(null);
+  const [sameApproach, setSameApproach] = useState(false);
 
   async function generateVariant() {
     setLoading(true);
+    setSameApproach(false);
     try {
       const res = await fetch(`/api/solutions/${solutionId}/variants`, {
         method: "POST",
       });
       if (!res.ok) return;
       const { data } = await res.json();
-      if (data?.steps) {
+      if (data?.sameApproach) {
+        setSameApproach(true);
+      } else if (data?.steps) {
         setVariants((prev) => [...prev, data.steps]);
         setActiveVariant(variants.length);
       }
@@ -39,10 +43,16 @@ export function VariantSelector({ solutionId, originalSteps }: VariantSelectorPr
         type="button"
         onClick={generateVariant}
         disabled={loading}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-all hover:border-stone-950 hover:text-stone-950 disabled:opacity-50 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-100 dark:hover:text-stone-100"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-all hover:border-stone-950 hover:text-stone-950 disabled:opacity-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-100 dark:hover:text-stone-100"
       >
         {loading ? "Generating..." : variants.length > 0 ? "Another variant" : "Alternative approach"}
       </button>
+
+      {sameApproach && (
+        <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 px-5 py-4 text-sm text-stone-600 dark:border-stone-700 dark:bg-stone-800/50 dark:text-stone-400">
+          This is the only way to solve this problem.
+        </div>
+      )}
 
       {activeVariant !== null && variants[activeVariant] && (
         <div className="rounded-xl border border-dashed border-stone-300 bg-stone-50 p-5 dark:border-stone-700 dark:bg-stone-800/50">
@@ -70,7 +80,7 @@ export function VariantSelector({ solutionId, originalSteps }: VariantSelectorPr
               className={`h-5 w-5 rounded-full text-[10px] font-medium transition-all ${
                 activeVariant === i
                   ? "bg-stone-950 text-white dark:bg-stone-100 dark:text-stone-950"
-                  : "bg-stone-200 text-stone-600 hover:bg-stone-300 dark:bg-stone-700 dark:text-stone-400"
+                  : "bg-stone-200 text-stone-600 hover:bg-stone-300 dark:bg-stone-700 dark:text-stone-400 dark:hover:bg-stone-600"
               }`}
             >
               {i + 1}

@@ -72,6 +72,12 @@ export async function getRecentSolutions(limit = DEFAULT_LIMIT, topic?: string):
   return rows.map(toSolutionRecord);
 }
 
+export async function getSolutionById(id: number): Promise<SolutionRecord | null> {
+  await ensureStepsDataTable();
+  const [row] = await db.select().from(stepsData).where(eq(stepsData.id, id)).limit(1);
+  return row ? toSolutionRecord(row) : null;
+}
+
 export async function createStoredSolution(problemInput: string, image?: string | null, topic?: string): Promise<SolutionRecord> {
   await ensureStepsDataTable();
 
