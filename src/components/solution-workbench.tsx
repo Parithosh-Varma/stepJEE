@@ -240,7 +240,7 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
     : null;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4 sm:space-y-5 lg:px-6">
+    <div className="mx-auto max-w-7xl space-y-4 sm:space-y-5 lg:px-8">
       {/* Breadcrumb */}
       {activeSolution && breadcrumbSubject && (
         <div className="flex items-center gap-1.5 text-[11px] text-stone-400 dark:text-stone-500">
@@ -281,8 +281,9 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
         </div>
       )}
 
-      {/* Two-column layout */}
-      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      {/* Three-column layout on large screens: input | output | sidebar */}
+      <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1.8fr)_20rem]">
+        {/* Column 1: Problem input + loading + empty state */}
         <div className="space-y-4 sm:space-y-5">
           <ProblemInput value={problem} onChange={setProblem} onSubmit={handleSubmit} isLoading={isSubmitting} error={submitError} image={image} onImageChange={setImage} />
 
@@ -339,7 +340,10 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
               </div>
             </div>
           )}
+        </div>
 
+        {/* Column 2: Active solution output */}
+        <div className="space-y-4 sm:space-y-5">
           {activeSolution && (
             <>
               <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-[var(--ion-border)] bg-white px-3 py-2 shadow-[var(--ion-shadow)] dark:bg-stone-900 sm:gap-2 sm:px-4 sm:py-2.5">
@@ -357,6 +361,7 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
           )}
         </div>
 
+        {/* Column 3: Sidebar */}
         <div className="space-y-4">
           {/* Subject filter tabs */}
           <div className="flex gap-1 rounded-xl border border-[var(--ion-border)] bg-white p-1 shadow-[var(--ion-shadow)] dark:bg-stone-900">
