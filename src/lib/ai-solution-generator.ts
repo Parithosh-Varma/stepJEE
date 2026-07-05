@@ -18,11 +18,14 @@ function getGroqClient(): Groq | null {
   return groqClient;
 }
 
-export async function generateWithAI(problem: string, image?: string | null): Promise<AIResult | null> {
-  const client = getGroqClient();
-  if (!client) return null;
+const ERROR_PATTERNS = [/does not support image/i, /cannot read/i, /image input/i];
 
-  const systemPrompt = `You are an expert JEE (IIT-JEE) solver. Given a problem (as text and/or image), output ONLY step-by-step mathematical equations with NO words, NO explanations, NO sentences.
+function isErrorContent(text: string): boolean {
+  return ERROR_PATTERNS.some((p) => p.test(text));
+}
+
+function buildSystemPrompt(): string {
+  return `You are an expert JEE (IIT-JEE) solver. Given a problem (as text and/or image), output ONLY step-by-step mathematical equations with NO words, NO explanations, NO sentences.
 
 STRICT RULES:
 - Output ONLY numbered steps, each step is one or more LaTeX equations.
@@ -55,51 +58,79 @@ Respond with valid JSON:
 - heading is always empty string ""
 - detail contains ONLY LaTeX equations inside $$...$$
 - Separate multiple equations in a step with \\n`;
+}
+
+async function callGroq(client: Groq, messages: Groq.Chat.Completions.ChatCompletionMessageParam[]): Promise<AIResult | null> {
+  const completion = await client.chat.completions.create({
+    model: MODEL,
+    messages,
+    response_format: { type: "json_object" },
+    temperature: 0.3,
+    max_tokens: 4096,
+  });
+
+  const content = completion.choices?.[0]?.message?.content;
+  if (!content) return null;
+
+  const parsed = JSON.parse(content) as AIResult;
+  if (!parsed.title || !Array.isArray(parsed.steps) || parsed.steps.length === 0) {
+    return null;
+  }
+
+  if (parsed.steps.some((s) => isErrorContent(s.detail))) {
+    return null;
+  }
+
+  parsed.steps = parsed.steps
+    .filter((s) => s.detail)
+    .map((s, i) => ({
+      order: typeof s.order === "number" ? s.order : i + 1,
+      heading: s.heading ?? "",
+      detail: s.detail,
+    }));
+
+  if (parsed.steps.length === 0) return null;
+
+  return parsed;
+}
+
+export async function generateWithAI(problem: string, image?: string | null): Promise<AIResult | null> {
+  const client = getGroqClient();
+  if (!client) return null;
+
+  const systemPrompt = buildSystemPrompt();
 
   try {
-    const messages: Groq.Chat.Completions.ChatCompletionMessageParam[] = [
-      { role: "system", content: systemPrompt },
-    ];
-
     if (image) {
-      messages.push({
-        role: "user",
-        content: [
-          { type: "text", text: problem || "Solve the problem shown in the image." },
-          { type: "image_url", image_url: { url: image } },
-        ],
-      });
-    } else {
-      messages.push({ role: "user", content: problem });
+      try {
+        const result = await callGroq(client, [
+          { role: "system", content: systemPrompt },
+          {
+            role: "user",
+            content: [
+              { type: "text", text: problem || "Solve the problem shown in the image." },
+              { type: "image_url", image_url: { url: image } },
+            ],
+          },
+        ]);
+        if (result) return result;
+      } catch {
+        // image call failed, fall through to text-only
+      }
+
+      // Retry with text-only
+      const result = await callGroq(client, [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: problem || "Solve the problem shown in the image." },
+      ]);
+      return result;
     }
 
-    const completion = await client.chat.completions.create({
-      model: MODEL,
-      messages,
-      response_format: { type: "json_object" },
-      temperature: 0.3,
-      max_tokens: 4096,
-    });
-
-    const content = completion.choices?.[0]?.message?.content;
-    if (!content) return null;
-
-    const parsed = JSON.parse(content) as AIResult;
-    if (!parsed.title || !Array.isArray(parsed.steps) || parsed.steps.length === 0) {
-      return null;
-    }
-
-    parsed.steps = parsed.steps
-      .filter((s) => s.detail)
-      .map((s, i) => ({
-        order: typeof s.order === "number" ? s.order : i + 1,
-        heading: s.heading ?? "",
-        detail: s.detail,
-      }));
-
-    if (parsed.steps.length === 0) return null;
-
-    return parsed;
+    const result = await callGroq(client, [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: problem },
+    ]);
+    return result;
   } catch {
     return null;
   }
