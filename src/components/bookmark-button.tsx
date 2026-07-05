@@ -26,7 +26,7 @@ export function BookmarkButton({ bookmarked, solutionId, onToggle }: BookmarkBut
     <button
       type="button"
       onClick={handleClick}
-      className={`flex min-h-[36px] min-w-[36px] items-center justify-center rounded-md text-sm transition-all hover:bg-stone-200 active:scale-90 dark:hover:bg-stone-700 ${
+      className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-base transition-all hover:bg-stone-200 active:scale-90 dark:hover:bg-stone-700 ${
         bookmarked ? "text-stone-950 dark:text-stone-100" : "text-stone-400 dark:text-stone-500"
       }`}
       title={bookmarked ? "Unbookmark this solution" : "Bookmark this solution"}

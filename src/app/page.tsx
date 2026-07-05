@@ -27,10 +27,10 @@ export default async function HomePage(props: { searchParams?: Promise<{ problem
               stepJEE
             </span>
           </div>
-          <div className="flex items-center gap-1">
-            <Link href="/physics" className="rounded-lg px-3 py-1.5 text-xs font-medium text-stone-500 transition-all hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100">Physics</Link>
-            <Link href="/maths" className="rounded-lg px-3 py-1.5 text-xs font-medium text-stone-500 transition-all hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100">Maths</Link>
-            <Link href="/chemistry" className="rounded-lg px-3 py-1.5 text-xs font-medium text-stone-500 transition-all hover:bg-stone-100 hover:text-stone-900 dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100">Chemistry</Link>
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            <Link href="/physics" className="rounded-lg px-2.5 py-2 text-xs font-medium text-stone-500 transition-all hover:bg-stone-100 hover:text-stone-900 active:scale-[0.97] dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100 sm:px-3">Physics</Link>
+            <Link href="/maths" className="rounded-lg px-2.5 py-2 text-xs font-medium text-stone-500 transition-all hover:bg-stone-100 hover:text-stone-900 active:scale-[0.97] dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100 sm:px-3">Maths</Link>
+            <Link href="/chemistry" className="rounded-lg px-2.5 py-2 text-xs font-medium text-stone-500 transition-all hover:bg-stone-100 hover:text-stone-900 active:scale-[0.97] dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-stone-100 sm:px-3">Chemistry</Link>
           </div>
         </div>
       </header>

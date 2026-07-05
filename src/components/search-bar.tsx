@@ -44,13 +44,13 @@ export function SearchBar({ onSelect }: SearchBarProps) {
           onChange={(e) => handleChange(e.target.value)}
           placeholder="Search solutions"
           aria-label="Search saved solutions"
-          className="w-full rounded-xl border border-stone-200 bg-white py-2.5 pl-9 pr-8 text-sm text-stone-950 outline-none transition-all placeholder:text-stone-400 focus:border-stone-400 focus:shadow-[var(--ion-shadow)] dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-stone-500"
+          className="w-full rounded-xl border border-stone-200 bg-white py-3 pl-10 pr-10 text-sm text-stone-950 outline-none transition-all placeholder:text-stone-400 focus:border-stone-400 focus:shadow-[var(--ion-shadow)] dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-stone-500"
         />
         {query && (
           <button
             type="button"
             onClick={() => { setQuery(""); setResults([]); setOpen(false); }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-xs text-stone-400 transition-all hover:text-stone-600 hover:bg-stone-100 active:scale-90 dark:text-stone-500 dark:hover:bg-stone-700"
+            className="absolute right-2 top-1/2 -translate-y-1/2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-sm text-stone-400 transition-all hover:text-stone-600 hover:bg-stone-100 active:scale-90 dark:text-stone-500 dark:hover:bg-stone-700"
             title="Clear search"
             aria-label="Clear search"
           >&times;</button>
@@ -58,20 +58,20 @@ export function SearchBar({ onSelect }: SearchBarProps) {
       </div>
 
       {open && results.length > 0 && (
-        <div className="absolute top-full left-0 right-0 z-20 mt-1.5 max-h-64 overflow-y-auto rounded-xl border border-stone-200 bg-white shadow-lg dark:border-stone-700 dark:bg-stone-800">
+        <div className="absolute top-full left-0 right-0 z-20 mt-1.5 max-h-80 overflow-y-auto rounded-xl border border-stone-200 bg-white shadow-lg dark:border-stone-700 dark:bg-stone-800">
           {results.map((sol) => (
             <button
               key={sol.id}
               type="button"
               onClick={() => { onSelect(sol); setOpen(false); setQuery(""); }}
-              className="flex w-full items-center gap-3 px-4 py-3 text-left transition-all hover:bg-stone-50 dark:hover:bg-stone-700/50"
+              className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-all hover:bg-stone-50 dark:hover:bg-stone-700/50"
             >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-100 text-[10px] font-semibold text-stone-500 dark:bg-stone-700 dark:text-stone-400">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-100 text-xs font-semibold text-stone-500 dark:bg-stone-700 dark:text-stone-400">
                 {sol.steps.length}
               </span>
               <div className="min-w-0">
                 <span className="block truncate text-sm font-medium text-stone-950 dark:text-stone-100">{sol.title}</span>
-                <span className="block text-[11px] text-stone-400 dark:text-stone-500">{sol.topic ?? "General"}</span>
+                <span className="block text-xs text-stone-400 dark:text-stone-500">{sol.topic ?? "General"}</span>
               </div>
             </button>
           ))}

@@ -23,7 +23,7 @@ export function SolutionHistory({ solutions, activeId, onSelect, onDelete, onRef
           type="button"
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-[11px] font-medium text-stone-600 transition-all hover:border-stone-400 hover:bg-stone-50 active:scale-[0.97] disabled:opacity-40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-500 dark:hover:bg-stone-700"
+          className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 transition-all hover:border-stone-400 hover:bg-stone-50 active:scale-[0.97] disabled:opacity-40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-500 dark:hover:bg-stone-700"
           title="Refresh solution list"
           aria-label="Refresh solution list"
         >
@@ -53,13 +53,13 @@ export function SolutionHistory({ solutions, activeId, onSelect, onDelete, onRef
                 <button
                   type="button"
                   onClick={() => onSelect(solution)}
-                  className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-all sm:px-5 ${
+                  className={`flex w-full items-center gap-3 px-4 py-3.5 text-left transition-all sm:px-5 ${
                     isActive
                       ? "bg-stone-950 dark:bg-stone-100"
                       : "hover:bg-stone-50 dark:hover:bg-stone-800/50"
                   }`}
                 >
-                  <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
                     isActive
                       ? "bg-white/20 text-white dark:bg-stone-900/20 dark:text-stone-950"
                       : "bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400"
@@ -73,7 +73,7 @@ export function SolutionHistory({ solutions, activeId, onSelect, onDelete, onRef
                     }`}>
                       {solution.title}
                     </span>
-                    <span className={`block text-[11px] mt-0.5 ${
+                    <span className={`block text-xs mt-0.5 ${
                       isActive ? "text-white/60 dark:text-stone-950/60" : "text-stone-400 dark:text-stone-500"
                     }`}>
                       {solution.topic ?? "General"}
@@ -92,7 +92,7 @@ export function SolutionHistory({ solutions, activeId, onSelect, onDelete, onRef
                 <button
                   type="button"
                   onClick={() => onDelete(solution.id)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full text-xs text-stone-300 opacity-0 transition-all hover:bg-stone-200 hover:text-stone-600 group-hover:opacity-100 dark:text-stone-600 dark:hover:bg-stone-700 dark:hover:text-stone-300 sm:right-3"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-sm text-stone-300 opacity-70 transition-all hover:bg-stone-200 hover:text-stone-600 active:scale-90 sm:opacity-0 sm:group-hover:opacity-100 dark:text-stone-600 dark:hover:bg-stone-700 dark:hover:text-stone-300 sm:right-3"
                   title="Delete this solution"
                   aria-label={`Delete solution: ${solution.title}`}
                 >&times;</button>

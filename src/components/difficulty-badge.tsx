@@ -39,22 +39,22 @@ export function DifficultyBadge({ solutionId, difficulty, onChange }: Difficulty
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className={`rounded-md border px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider transition-all ${
+        className={`flex min-h-[44px] items-center gap-1 rounded-md border px-3 py-1.5 text-xs font-medium uppercase tracking-wider transition-all ${
           difficulty
             ? colorMap[difficulty] ?? "border-stone-300 text-stone-500"
             : "border-stone-300 text-stone-400 dark:border-stone-600 dark:text-stone-500"
         }`}
       >
-        {difficulty ?? "set"}
+        {difficulty ?? "Set"}
       </button>
       {open && (
-        <div className="absolute top-full left-0 z-10 mt-1 flex gap-1 rounded-lg border border-stone-300 bg-white p-1.5 shadow-sm dark:border-stone-600 dark:bg-stone-800">
+        <div className="absolute top-full left-0 z-10 mt-1.5 flex gap-1 rounded-lg border border-stone-300 bg-white p-2 shadow-sm dark:border-stone-600 dark:bg-stone-800">
           {LEVELS.map((level) => (
             <button
               key={level}
               type="button"
               onClick={() => setLevel(level)}
-              className={`rounded-md px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider transition-all hover:bg-stone-100 dark:hover:bg-stone-700 ${
+              className={`flex min-h-[44px] items-center rounded-md px-4 py-2 text-xs font-medium uppercase tracking-wider transition-all hover:bg-stone-100 active:scale-[0.97] dark:hover:bg-stone-700 ${
                 difficulty === level ? "bg-stone-200 dark:bg-stone-700 dark:text-stone-100" : "dark:text-stone-400"
               }`}
             >
@@ -65,7 +65,8 @@ export function DifficultyBadge({ solutionId, difficulty, onChange }: Difficulty
             <button
               type="button"
               onClick={() => setLevel(null)}
-              className="rounded-md px-2 py-1 text-[11px] text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
+              className="flex min-h-[44px] items-center rounded-md px-3 py-2 text-sm text-stone-400 transition-all hover:text-stone-600 active:scale-[0.97] dark:text-stone-500 dark:hover:text-stone-300"
+              aria-label="Clear difficulty"
             >
               &times;
             </button>

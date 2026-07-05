@@ -15,7 +15,7 @@ import { VariantSelector } from "@/components/variant-selector";
 import { VerificationInput } from "@/components/verification-input";
 import type { SolutionRecord } from "@/types/solution";
 import type { FormEvent } from "react";
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 
 type SolutionWorkbenchProps = {
@@ -50,6 +50,49 @@ const EXAMPLE_PROBLEMS = [
   { label: "Integral of x²", problem: "Evaluate the integral of x^2 from 0 to 3" },
 ];
 
+let _weeklyCount = 0;
+let _weeklyListeners: (() => void)[] = [];
+
+if (typeof document !== "undefined") {
+  try {
+    const stored = localStorage.getItem("stepjee-weekly-count");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed.date && isSameWeek(new Date(parsed.date), new Date())) {
+        _weeklyCount = parsed.count;
+      } else {
+        localStorage.removeItem("stepjee-weekly-count");
+      }
+    }
+  } catch {}
+}
+
+function _notifyWeekly() {
+  _weeklyListeners.forEach((l) => l());
+}
+
+const weeklyStore = {
+  subscribe: (cb: () => void): (() => void) => {
+    _weeklyListeners.push(cb);
+    return () => {
+      _weeklyListeners = _weeklyListeners.filter((l) => l !== cb);
+    };
+  },
+  getSnapshot: (): number => {
+    if (typeof document === "undefined") return 0;
+    return _weeklyCount;
+  },
+  getServerSnapshot: (): number => 0,
+};
+
+function setWeeklyCount(value: number) {
+  _weeklyCount = value;
+  try {
+    localStorage.setItem("stepjee-weekly-count", JSON.stringify({ date: new Date().toISOString(), count: value }));
+  } catch {}
+  _notifyWeekly();
+}
+
 export function SolutionWorkbench({ initialSolutions, initialLoadError = null, initialProblem = "", topic }: SolutionWorkbenchProps) {
   const router = useRouter();
   const [problem, setProblem] = useState(initialProblem);
@@ -63,45 +106,36 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
   const [subjectFilter, setSubjectFilter] = useState<string | undefined>(undefined);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const loadingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [weeklyCount, setWeeklyCount] = useState(0);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("stepjee-weekly-count");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (parsed.date && isSameWeek(new Date(parsed.date), new Date())) {
-        setWeeklyCount(parsed.count);
-      } else {
-        localStorage.removeItem("stepjee-weekly-count");
-      }
-    }
-  }, []);
+  const weeklyCount = useSyncExternalStore(
+    weeklyStore.subscribe,
+    weeklyStore.getSnapshot,
+    weeklyStore.getServerSnapshot,
+  );
 
   const filteredSolutions = subjectFilter
     ? solutions.filter((s) => s.topic?.toLowerCase() === subjectFilter)
     : solutions;
 
+  const prevSubmitting = useRef(isSubmitting);
   useEffect(() => {
-    if (isSubmitting) {
+    if (isSubmitting && !prevSubmitting.current) {
+      setLoadingMessageIndex(0);
       loadingTimer.current = setInterval(() => {
         setLoadingMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
       }, 1800);
-    } else {
+    } else if (!isSubmitting && prevSubmitting.current) {
       if (loadingTimer.current) clearInterval(loadingTimer.current);
       loadingTimer.current = null;
-      setLoadingMessageIndex(0);
     }
+    prevSubmitting.current = isSubmitting;
     return () => {
       if (loadingTimer.current) clearInterval(loadingTimer.current);
     };
   }, [isSubmitting]);
 
   const incrementWeeklyCount = useCallback(() => {
-    const next = weeklyCount + 1;
-    setWeeklyCount(next);
-    try {
-      localStorage.setItem("stepjee-weekly-count", JSON.stringify({ date: new Date().toISOString(), count: next }));
-    } catch {}
+    setWeeklyCount(weeklyCount + 1);
   }, [weeklyCount]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -210,7 +244,7 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
           {currentTopic && (
             <>
               <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
-              <span className="truncate max-w-[180px]" title={currentTopic}>{currentTopic}</span>
+              <span className="truncate max-w-[120px] sm:max-w-[180px]" title={currentTopic}>{currentTopic}</span>
             </>
           )}
         </div>
@@ -285,7 +319,7 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
                     key={i}
                     type="button"
                     onClick={() => handleExampleProblem(ex.problem)}
-                    className="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-all hover:border-stone-950 hover:text-stone-950 active:scale-[0.97] dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-100 dark:hover:text-stone-100"
+                    className="rounded-lg border border-stone-200 bg-white px-4 py-2 text-xs font-medium text-stone-600 transition-all hover:border-stone-950 hover:text-stone-950 active:scale-[0.97] dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-100 dark:hover:text-stone-100"
                   >
                     {ex.label}
                   </button>
@@ -319,7 +353,7 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
                 key={tab.label}
                 type="button"
                 onClick={() => setSubjectFilter(tab.value)}
-                className={`flex-1 rounded-lg px-2 py-1.5 text-center text-[11px] font-medium transition-all active:scale-[0.97] ${
+                className={`flex-1 rounded-lg px-3 py-2 text-center text-xs font-medium transition-all active:scale-[0.97] ${
                   subjectFilter === tab.value
                     ? "bg-stone-950 text-white dark:bg-stone-100 dark:text-stone-950"
                     : "text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200"
@@ -337,14 +371,14 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
                 <button
                   type="button"
                   onClick={() => handleDelete(deleteConfirm)}
-                  className="rounded-md bg-red-700 px-3 py-1 text-[11px] font-medium text-white transition-all hover:bg-red-800 active:scale-[0.97]"
+                  className="flex min-h-[44px] items-center rounded-md bg-red-700 px-4 py-2 text-xs font-medium text-white transition-all hover:bg-red-800 active:scale-[0.97]"
                 >
                   Delete
                 </button>
                 <button
                   type="button"
                   onClick={() => setDeleteConfirm(null)}
-                  className="rounded-md border border-stone-300 bg-white px-3 py-1 text-[11px] font-medium text-stone-600 transition-all hover:bg-stone-50 active:scale-[0.97] dark:border-stone-600 dark:bg-stone-800 dark:text-stone-400"
+                  className="flex min-h-[44px] items-center rounded-md border border-stone-300 bg-white px-4 py-2 text-xs font-medium text-stone-600 transition-all hover:bg-stone-50 active:scale-[0.97] dark:border-stone-600 dark:bg-stone-800 dark:text-stone-400"
                 >
                   Cancel
                 </button>
