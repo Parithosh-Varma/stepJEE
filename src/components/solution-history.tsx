@@ -23,7 +23,7 @@ export function SolutionHistory({ solutions, activeId, onSelect, onDelete, onRef
           type="button"
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-[11px] font-medium text-stone-600 transition-all hover:border-stone-400 hover:bg-stone-50 disabled:opacity-40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-500 dark:hover:bg-stone-700"
+          className="rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-[11px] font-medium text-stone-600 transition-all hover:border-stone-400 hover:bg-stone-50 active:scale-[0.97] disabled:opacity-40 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-500 dark:hover:bg-stone-700"
           title="Refresh solution list"
           aria-label="Refresh solution list"
         >
@@ -32,7 +32,18 @@ export function SolutionHistory({ solutions, activeId, onSelect, onDelete, onRef
       </div>
 
       {solutions.length === 0 ? (
-        <div className="px-5 py-6 text-center text-xs text-stone-400 dark:text-stone-500">No saved solutions yet.</div>
+        <div className="flex flex-col items-center px-5 py-8 text-center">
+          <svg className="mb-2 h-8 w-8 text-stone-300 dark:text-stone-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          <p className="text-sm font-medium text-stone-500 dark:text-stone-400">No saved solutions yet</p>
+          <p className="mt-1 text-xs text-stone-400 dark:text-stone-500">
+            Solutions you generate will appear here for quick access.
+          </p>
+        </div>
       ) : (
         <div className="divide-y divide-[var(--ion-border-light)] dark:divide-[var(--ion-border)]">
           {solutions.map((solution) => {

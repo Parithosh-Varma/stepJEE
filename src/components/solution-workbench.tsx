@@ -15,7 +15,7 @@ import { VariantSelector } from "@/components/variant-selector";
 import { VerificationInput } from "@/components/verification-input";
 import type { SolutionRecord } from "@/types/solution";
 import type { FormEvent } from "react";
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 type SolutionWorkbenchProps = {
@@ -32,6 +32,24 @@ const SUBJECT_TABS = [
   { label: "Chemistry", value: "chemistry" },
 ] as const;
 
+const LOADING_MESSAGES = [
+  "Parsing problem...",
+  "Identifying concepts...",
+  "Building step 1...",
+  "Applying formulas...",
+  "Checking intermediate result...",
+  "Building step 2...",
+  "Verifying consistency...",
+  "Building step 3...",
+  "Finalizing answer...",
+];
+
+const EXAMPLE_PROBLEMS = [
+  { label: "Derivative of x³·sin(x)", problem: "Find the derivative of f(x) = x^3 sin(x)" },
+  { label: "Force & acceleration", problem: "A force of 10 N acts on a 2 kg mass. Find the acceleration." },
+  { label: "Integral of x²", problem: "Evaluate the integral of x^2 from 0 to 3" },
+];
+
 export function SolutionWorkbench({ initialSolutions, initialLoadError = null, initialProblem = "", topic }: SolutionWorkbenchProps) {
   const router = useRouter();
   const [problem, setProblem] = useState(initialProblem);
@@ -43,10 +61,48 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [subjectFilter, setSubjectFilter] = useState<string | undefined>(undefined);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const loadingTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [weeklyCount, setWeeklyCount] = useState(0);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("stepjee-weekly-count");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed.date && isSameWeek(new Date(parsed.date), new Date())) {
+        setWeeklyCount(parsed.count);
+      } else {
+        localStorage.removeItem("stepjee-weekly-count");
+      }
+    }
+  }, []);
 
   const filteredSolutions = subjectFilter
     ? solutions.filter((s) => s.topic?.toLowerCase() === subjectFilter)
     : solutions;
+
+  useEffect(() => {
+    if (isSubmitting) {
+      loadingTimer.current = setInterval(() => {
+        setLoadingMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
+      }, 1800);
+    } else {
+      if (loadingTimer.current) clearInterval(loadingTimer.current);
+      loadingTimer.current = null;
+      setLoadingMessageIndex(0);
+    }
+    return () => {
+      if (loadingTimer.current) clearInterval(loadingTimer.current);
+    };
+  }, [isSubmitting]);
+
+  const incrementWeeklyCount = useCallback(() => {
+    const next = weeklyCount + 1;
+    setWeeklyCount(next);
+    try {
+      localStorage.setItem("stepjee-weekly-count", JSON.stringify({ date: new Date().toISOString(), count: next }));
+    } catch {}
+  }, [weeklyCount]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -69,6 +125,7 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
       setSolutions((current) => mergeSolutions(payload.data!, current));
       setProblem("");
       setImage(null);
+      incrementWeeklyCount();
     } catch (error) {
       const msg = error instanceof Error ? error.message : "Something went wrong.";
       if (msg.toLowerCase().includes("image") || msg.toLowerCase().includes("read") || msg.toLowerCase().includes("blurry")) {
@@ -126,10 +183,39 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
     setTimeout(() => setDeleteConfirm(null), 4000);
   }
 
+  function handleExampleProblem(problemStr: string) {
+    setProblem(problemStr);
+  }
+
   const showEmptyState = !activeSolution && solutions.length === 0 && !isSubmitting;
+  const currentTopic = activeSolution?.topic;
+  const breadcrumbSubject = currentTopic
+    ? ["physics", "maths", "chemistry"].find((s) => currentTopic.toLowerCase().includes(s)) ?? null
+    : null;
 
   return (
-    <div className="space-y-4 sm:space-y-5">
+    <div className="mx-auto max-w-3xl space-y-4 sm:space-y-5">
+      {/* Breadcrumb */}
+      {activeSolution && breadcrumbSubject && (
+        <div className="flex items-center gap-1.5 text-[11px] text-stone-400 dark:text-stone-500">
+          <button
+            type="button"
+            onClick={() => { setActiveSolution(null); }}
+            className="hover:text-stone-600 transition-colors dark:hover:text-stone-300"
+          >
+            All solutions
+          </button>
+          <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+          <span className="text-stone-600 dark:text-stone-300 capitalize">{breadcrumbSubject}</span>
+          {currentTopic && (
+            <>
+              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+              <span className="truncate max-w-[180px]" title={currentTopic}>{currentTopic}</span>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Toolbar with search + actions */}
       <div className="flex items-center gap-2">
         <div className="min-w-0 flex-1">
@@ -139,10 +225,50 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
         <DarkModeToggle />
       </div>
 
+      {/* Weekly progress badge */}
+      {weeklyCount > 0 && (
+        <div className="flex items-center gap-2 rounded-lg border border-stone-200 bg-white px-3 py-2 shadow-[var(--ion-shadow)] animate-fade-in dark:border-stone-700 dark:bg-stone-800">
+          <svg className="h-4 w-4 text-stone-500 dark:text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <span className="text-xs text-stone-600 dark:text-stone-400">
+            <strong className="text-stone-950 dark:text-stone-100">{weeklyCount}</strong> problem{weeklyCount !== 1 ? "s" : ""} solved this week
+          </span>
+        </div>
+      )}
+
       {/* Two-column layout */}
       <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-4 sm:space-y-5">
           <ProblemInput value={problem} onChange={setProblem} onSubmit={handleSubmit} isLoading={isSubmitting} error={submitError} image={image} onImageChange={setImage} />
+
+          {/* Loading overlay with rotating message */}
+          {isSubmitting && (
+            <div className="animate-fade-in rounded-xl border border-[var(--ion-border)] bg-white px-5 py-6 shadow-[var(--ion-shadow)] dark:bg-stone-900">
+              <div className="flex items-center gap-3">
+                <svg className="h-5 w-5 animate-spin text-stone-500 dark:text-stone-400" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25"/>
+                  <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="opacity-75"/>
+                </svg>
+                <div>
+                  <p className="text-sm font-medium text-stone-950 dark:text-stone-100">Generating solution</p>
+                  <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400 transition-all duration-300">
+                    {LOADING_MESSAGES[loadingMessageIndex]}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 flex gap-1">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
+                      i <= Math.floor(loadingMessageIndex / 2)
+                        ? "bg-stone-950 dark:bg-stone-100"
+                        : "bg-stone-200 dark:bg-stone-700"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           {showEmptyState && (
             <div className="rounded-xl border border-dashed border-stone-300 bg-white px-6 py-10 text-center dark:border-stone-600 dark:bg-stone-900">
@@ -153,6 +279,18 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
               </div>
               <p className="text-sm font-medium text-stone-950 dark:text-stone-100">No problems yet</p>
               <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">Paste a problem, type it, or upload an image to get started.</p>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                {EXAMPLE_PROBLEMS.map((ex, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => handleExampleProblem(ex.problem)}
+                    className="rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-all hover:border-stone-950 hover:text-stone-950 active:scale-[0.97] dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-100 dark:hover:text-stone-100"
+                  >
+                    {ex.label}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -166,10 +304,6 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
               </div>
 
               <SolutionPanel solution={activeSolution} />
-
-              <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800 dark:border-amber-800/40 dark:bg-amber-900/20 dark:text-amber-300">
-                AI-generated steps — always verify with your teacher or textbook before using in practice.
-              </div>
 
               <VariantSelector solutionId={activeSolution.id} originalSteps={activeSolution.steps} />
               <VerificationInput solutionId={activeSolution.id} problem={activeSolution.problem} />
@@ -185,7 +319,7 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
                 key={tab.label}
                 type="button"
                 onClick={() => setSubjectFilter(tab.value)}
-                className={`flex-1 rounded-lg px-2 py-1.5 text-center text-[11px] font-medium transition-all ${
+                className={`flex-1 rounded-lg px-2 py-1.5 text-center text-[11px] font-medium transition-all active:scale-[0.97] ${
                   subjectFilter === tab.value
                     ? "bg-stone-950 text-white dark:bg-stone-100 dark:text-stone-950"
                     : "text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200"
@@ -203,14 +337,14 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
                 <button
                   type="button"
                   onClick={() => handleDelete(deleteConfirm)}
-                  className="rounded-md bg-red-700 px-3 py-1 text-[11px] font-medium text-white hover:bg-red-800"
+                  className="rounded-md bg-red-700 px-3 py-1 text-[11px] font-medium text-white transition-all hover:bg-red-800 active:scale-[0.97]"
                 >
                   Delete
                 </button>
                 <button
                   type="button"
                   onClick={() => setDeleteConfirm(null)}
-                  className="rounded-md border border-stone-300 bg-white px-3 py-1 text-[11px] font-medium text-stone-600 hover:bg-stone-50 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-400"
+                  className="rounded-md border border-stone-300 bg-white px-3 py-1 text-[11px] font-medium text-stone-600 transition-all hover:bg-stone-50 active:scale-[0.97] dark:border-stone-600 dark:bg-stone-800 dark:text-stone-400"
                 >
                   Cancel
                 </button>
@@ -235,4 +369,18 @@ export function SolutionWorkbench({ initialSolutions, initialLoadError = null, i
 
 function mergeSolutions(next: SolutionRecord, current: SolutionRecord[]) {
   return [next, ...current.filter((solution) => solution.id !== next.id)].slice(0, 8);
+}
+
+function isSameWeek(a: Date, b: Date) {
+  const startOfWeek = (d: Date) => {
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    date.setDate(diff);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  };
+  const aStart = startOfWeek(a);
+  const bStart = startOfWeek(b);
+  return aStart.getTime() === bStart.getTime();
 }

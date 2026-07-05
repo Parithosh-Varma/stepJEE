@@ -50,7 +50,7 @@ export function SearchBar({ onSelect }: SearchBarProps) {
           <button
             type="button"
             onClick={() => { setQuery(""); setResults([]); setOpen(false); }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-xs text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:text-stone-500 dark:hover:bg-stone-700"
+            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-xs text-stone-400 transition-all hover:text-stone-600 hover:bg-stone-100 active:scale-90 dark:text-stone-500 dark:hover:bg-stone-700"
             title="Clear search"
             aria-label="Clear search"
           >&times;</button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MathText } from "@/components/math-text";
 
 type VerificationProps = {
   solutionId: number;
@@ -62,7 +63,7 @@ export function VerificationInput({ solutionId, problem }: VerificationProps) {
       </button>
       {feedback && (
         <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm leading-6 text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-900/20 dark:text-emerald-300">
-          {feedback}
+          <MathText text={feedback} />
         </div>
       )}
     </div>

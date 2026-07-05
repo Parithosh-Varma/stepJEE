@@ -22,7 +22,7 @@ export function RandomProblemButton({ onPick }: RandomProblemButtonProps) {
     <button
       type="button"
       onClick={handleClick}
-      className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 text-xs font-medium text-stone-500 transition-all hover:border-stone-400 hover:text-stone-700 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-500 dark:hover:text-stone-200"
+      className="flex min-h-[44px] items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 text-xs font-medium text-stone-500 transition-all hover:border-stone-400 hover:text-stone-700 active:scale-[0.97] dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400 dark:hover:border-stone-500 dark:hover:text-stone-200"
       title="Pick a random JEE problem topic"
       aria-label="Pick a random problem topic"
     >
