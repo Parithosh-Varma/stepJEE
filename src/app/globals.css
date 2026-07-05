@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  --ion-radius: 12px;
+  --ion-radius-sm: 8px;
+  --ion-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --ion-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.03);
+  --ion-border: #e7e5e4;
+  --ion-border-light: #f0eeeb;
+}
+
+.dark {
+  color-scheme: dark;
+  --ion-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --ion-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --ion-border: #292524;
+  --ion-border-light: #1c1917;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: auto;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+::selection {
+  background: #292524;
+  color: #ffffff;
+}
+
+.dark ::selection {
+  background: #a8a29e;
+  color: #0c0a09;
+}
+
+button,
+textarea {
+  font: inherit;
+}
+
+button:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #292524;
+  outline-offset: 2px;
+}
+
+.dark button:focus-visible,
+.dark textarea:focus-visible {
+  outline-color: #a8a29e;
+}
+
+input:focus-visible,
+a:focus-visible {
+  outline: 2px solid #292524;
+  outline-offset: 2px;
+}
+
+.dark input:focus-visible,
+.dark a:focus-visible {
+  outline-color: #a8a29e;
+}
