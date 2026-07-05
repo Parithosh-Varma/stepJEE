@@ -4,10 +4,21 @@ import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "stepJEE",
-  description: "Step-by-step solutions for JEE Mathematics, Physics, and Chemistry problems.",
+  title: "stepJEE — Step-by-Step JEE Problem Solver",
+  description: "Generate step-by-step solutions for JEE Mathematics, Physics, and Chemistry problems. AI-powered, syllabus-driven, with LaTeX rendering.",
   icons: { icon: "/favicon.svg" },
   manifest: "/manifest.json",
+  openGraph: {
+    title: "stepJEE — Step-by-Step JEE Problem Solver",
+    description: "AI-powered step-by-step solutions for JEE Mathematics, Physics, and Chemistry problems with LaTeX rendering, hints, and verification.",
+    type: "website",
+    siteName: "stepJEE",
+  },
+  twitter: {
+    card: "summary",
+    title: "stepJEE — Step-by-Step JEE Problem Solver",
+    description: "Generate step-by-step solutions for JEE problems with LaTeX rendering and verification.",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

@@ -9,16 +9,16 @@ export function SolutionPanel({ solution }: SolutionPanelProps) {
   if (!solution) {
     return (
       <div className="rounded-xl border border-[var(--ion-border)] bg-white shadow-[var(--ion-shadow)] dark:bg-stone-900">
-        <div className="border-b border-[var(--ion-border-light)] px-5 py-3.5 dark:border-[var(--ion-border)]">
+        <div className="border-b border-[var(--ion-border-light)] px-4 py-3 sm:px-5 sm:py-3.5 dark:border-[var(--ion-border)]">
           <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-stone-500 dark:text-stone-400">Solution</p>
         </div>
-        <div className="space-y-3 p-5">
+        <div className="space-y-3 p-4 sm:p-5">
           <div className="h-3 w-24 rounded-full bg-stone-200 dark:bg-stone-800" />
           <div className="h-3 w-full rounded-full bg-stone-200 dark:bg-stone-800" />
           <div className="h-3 w-5/6 rounded-full bg-stone-200 dark:bg-stone-800" />
           <div className="h-3 w-2/3 rounded-full bg-stone-200 dark:bg-stone-800" />
         </div>
-        <div className="px-5 pb-5">
+        <div className="px-4 pb-4 sm:px-5 sm:pb-5">
           <p className="text-xs text-stone-400 dark:text-stone-500">Submit a problem to generate a solution.</p>
         </div>
       </div>
@@ -27,7 +27,7 @@ export function SolutionPanel({ solution }: SolutionPanelProps) {
 
   return (
     <div className="rounded-xl border border-[var(--ion-border)] bg-white shadow-[var(--ion-shadow)] dark:bg-stone-900">
-      <div className="border-b border-[var(--ion-border-light)] px-5 py-3.5 dark:border-[var(--ion-border)]">
+      <div className="border-b border-[var(--ion-border-light)] px-4 py-3 dark:border-[var(--ion-border)] sm:px-5 sm:py-3.5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-stone-500 dark:text-stone-400">Solution</p>
@@ -42,11 +42,11 @@ export function SolutionPanel({ solution }: SolutionPanelProps) {
 
       <div className="divide-y divide-[var(--ion-border-light)] dark:divide-[var(--ion-border)]">
         {solution.steps.map((step) => (
-          <div key={`${solution.id}-${step.order}`} className="flex gap-3 px-5 py-3.5">
+          <div key={`${solution.id}-${step.order}`} className="flex gap-3 px-4 py-3 sm:px-5 sm:py-3.5">
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-100 text-[11px] font-semibold text-stone-600 dark:bg-stone-800 dark:text-stone-400">
               {step.order}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1 overflow-x-auto">
               {step.heading && (
                 <h3 className="text-sm font-semibold text-stone-950 dark:text-stone-100">{step.heading}</h3>
               )}

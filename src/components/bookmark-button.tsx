@@ -26,10 +26,11 @@ export function BookmarkButton({ bookmarked, solutionId, onToggle }: BookmarkBut
     <button
       type="button"
       onClick={handleClick}
-      className={`flex h-7 w-7 items-center justify-center rounded-md text-sm transition-all hover:bg-stone-200 dark:hover:bg-stone-800 ${
+      className={`flex min-h-[36px] min-w-[36px] items-center justify-center rounded-md text-sm transition-all hover:bg-stone-200 dark:hover:bg-stone-700 ${
         bookmarked ? "text-stone-950 dark:text-stone-100" : "text-stone-400 dark:text-stone-500"
       }`}
-      title={bookmarked ? "Unbookmark" : "Bookmark"}
+      title={bookmarked ? "Unbookmark this solution" : "Bookmark this solution"}
+      aria-label={bookmarked ? "Unbookmark this solution" : "Bookmark this solution"}
     >
       {bookmarked ? "\u2605" : "\u2606"}
     </button>

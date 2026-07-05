@@ -35,7 +35,7 @@ export function SearchBar({ onSelect }: SearchBarProps) {
   return (
     <div className="relative">
       <div className="relative">
-        <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 dark:text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 dark:text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
           <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
         </svg>
         <input
@@ -43,13 +43,16 @@ export function SearchBar({ onSelect }: SearchBarProps) {
           value={query}
           onChange={(e) => handleChange(e.target.value)}
           placeholder="Search solutions"
-          className="w-full rounded-xl border border-stone-200 bg-white py-2.5 pl-9 pr-3 text-sm text-stone-950 outline-none transition-all placeholder:text-stone-400 focus:border-stone-400 focus:shadow-[var(--ion-shadow)] dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-stone-500"
+          aria-label="Search saved solutions"
+          className="w-full rounded-xl border border-stone-200 bg-white py-2.5 pl-9 pr-8 text-sm text-stone-950 outline-none transition-all placeholder:text-stone-400 focus:border-stone-400 focus:shadow-[var(--ion-shadow)] dark:border-stone-700 dark:bg-stone-800 dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:border-stone-500"
         />
         {query && (
           <button
             type="button"
             onClick={() => { setQuery(""); setResults([]); setOpen(false); }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-5 w-5 items-center justify-center rounded-full text-xs text-stone-400 hover:text-stone-600 dark:text-stone-500"
+            className="absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-xs text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:text-stone-500 dark:hover:bg-stone-700"
+            title="Clear search"
+            aria-label="Clear search"
           >&times;</button>
         )}
       </div>
